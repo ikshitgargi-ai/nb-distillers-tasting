@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NB Distillers">
+    <title>NB Distillers — Discover Your Spirit</title>
+    <link rel="icon" href="https://nbdistillers.com/wp-content/uploads/2021/01/Untitled_design__27_-removebg-preview-150x150.png">
+    <link rel="apple-touch-icon" href="https://nbdistillers.com/wp-content/uploads/2021/01/Untitled_design__27_-removebg-preview-150x150.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Ambient Background -->
+    <canvas id="ambientCanvas"></canvas>
+
+    <!-- Floating Particles -->
+    <div id="particles"></div>
+
+    <!-- ==================== SCREEN 0: WELCOME ==================== -->
+    <section class="screen active" id="screen-welcome">
+        <div class="welcome-content">
+            <div class="logo-container">
+                <div class="logo-ring"></div>
+                <div class="logo-ring delay-1"></div>
+                <div class="logo-ring delay-2"></div>
+                <img src="https://nbdistillers.com/wp-content/uploads/2021/01/whitelogo.png" alt="NB Distillers" class="logo-img">
+            </div>
+            <h1 class="welcome-title">Discover Your<br><em>Perfect Spirit</em></h1>
+            <p class="welcome-subtitle">An immersive journey through flavour, aroma, and craft.<br>Find the spirit that speaks to your soul.</p>
+            <button class="btn-primary pulse-glow" onclick="App.startJourney()">
+                <span>Begin Your Journey</span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="welcome-footer">
+                <span>Welland, Ontario</span>
+                <span class="dot"></span>
+                <span>Grain to Glass</span>
+                <span class="dot"></span>
+                <span>Small Batch Craft</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 1: NAME INPUT ==================== -->
+    <section class="screen" id="screen-name">
+        <div class="question-container">
+            <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+            <div class="step-label">Step 1 of 7</div>
+            <h2 class="question-title">First, let's get<br><em>acquainted</em></h2>
+            <p class="question-desc">What should we call you?</p>
+            <div class="input-group">
+                <input type="text" id="userName" class="text-input" placeholder="Your first name" autocomplete="off" maxlength="20">
+                <div class="input-line"></div>
+            </div>
+            <button class="btn-primary" onclick="App.submitName()" id="nameBtn" disabled>
+                <span>Continue</span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 2: MOOD ==================== -->
+    <section class="screen" id="screen-mood">
+        <div class="question-container">
+            <div class="progress-bar"><div class="progress-fill" style="width: 14%"></div></div>
+            <div class="step-label">Step 2 of 7</div>
+            <h2 class="question-title">What's your<br><em>vibe today?</em></h2>
+            <p class="question-desc">How are you feeling right now?</p>
+            <div class="options-grid mood-grid">
+                <button class="option-card" data-value="adventurous" onclick="App.selectOption(this, 'mood')">
+                    <div class="option-emoji">&#x1F30D;</div>
+                    <span class="option-label">Adventurous</span>
+                    <span class="option-sub">Ready to explore the unknown</span>
+                </button>
+                <button class="option-card" data-value="relaxed" onclick="App.selectOption(this, 'mood')">
+                    <div class="option-emoji">&#x1F60C;</div>
+                    <span class="option-label">Relaxed</span>
+                    <span class="option-sub">Chill vibes & easy sipping</span>
+                </button>
+                <button class="option-card" data-value="celebratory" onclick="App.selectOption(this, 'mood')">
+                    <div class="option-emoji">&#x1F973;</div>
+                    <span class="option-label">Celebratory</span>
+                    <span class="option-sub">Let's raise a glass!</span>
+                </button>
+                <button class="option-card" data-value="curious" onclick="App.selectOption(this, 'mood')">
+                    <div class="option-emoji">&#x1F9D0;</div>
+                    <span class="option-label">Curious</span>
+                    <span class="option-sub">Teach me something new</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 3: FLAVOUR PREFERENCE ==================== -->
+    <section class="screen" id="screen-flavour">
+        <div class="question-container">
+            <div class="progress-bar"><div class="progress-fill" style="width: 28%"></div></div>
+            <div class="step-label">Step 3 of 7</div>
+            <h2 class="question-title">Which flavours<br><em>call to you?</em></h2>
+            <p class="question-desc">Pick up to 3 that excite your palate</p>
+            <div class="options-grid flavour-grid">
+                <button class="option-pill" data-value="citrus" onclick="App.togglePill(this, 'flavour')">
+                    <span class="pill-icon">&#127819;</span> Citrus & Bright
+                </button>
+                <button class="option-pill" data-value="spice" onclick="App.togglePill(this, 'flavour')">
+                    <span class="pill-icon">&#127798;</span> Warm Spice
+                </button>
+                <button class="option-pill" data-value="floral" onclick="App.togglePill(this, 'flavour')">
+                    <span class="pill-icon">&#127800;</span> Floral & Aromatic
+                </button>
+                <button class="option-pill" data-value="sweet" onclick="App.togglePill(this, 'flavour')">
+                    <span class="pill-icon">&#127855;</span> Rich & Sweet
+                </button>
+                <button class="option-pill" data-value="herbal" onclick="App.togglePill(this, 'flavour')">
+                    <span class="pill-icon">&#127807;</span> Herbal & Earthy
+                </button>
+                <button class="option-pill" data-value="smoky" onclick="App.togglePill(this, 'flavour')">
+                    <span class="pill-icon">&#128293;</span> Smoky & Bold
+                </button>
+                <button class="option-pill" data-value="coffee" onclick="App.togglePill(this, 'flavour')">
+                    <span class="pill-icon">&#9749;</span> Coffee & Roasted
+                </button>
+                <button class="option-pill" data-value="fruity" onclick="App.togglePill(this, 'flavour')">
+                    <span class="pill-icon">&#127815;</span> Berry & Fruity
+                </button>
+                <button class="option-pill" data-value="clean" onclick="App.togglePill(this, 'flavour')">
+                    <span class="pill-icon">&#10052;</span> Clean & Crisp
+                </button>
+            </div>
+            <button class="btn-primary" onclick="App.submitFlavour()" id="flavourBtn" disabled>
+                <span>Continue</span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 4: DRINKING STYLE ==================== -->
+    <section class="screen" id="screen-style">
+        <div class="question-container">
+            <div class="progress-bar"><div class="progress-fill" style="width: 42%"></div></div>
+            <div class="step-label">Step 4 of 7</div>
+            <h2 class="question-title">How do you like<br><em>your spirit?</em></h2>
+            <p class="question-desc">What's your go-to drinking style?</p>
+            <div class="options-grid style-grid">
+                <button class="option-card horizontal" data-value="neat" onclick="App.selectOption(this, 'style')">
+                    <div class="option-emoji-sm">&#x1F943;</div>
+                    <div class="option-text">
+                        <span class="option-label">Neat or On the Rocks</span>
+                        <span class="option-sub">Pure, uncut, the way it was meant to be</span>
+                    </div>
+                </button>
+                <button class="option-card horizontal" data-value="cocktail" onclick="App.selectOption(this, 'style')">
+                    <div class="option-emoji-sm">&#x1F378;</div>
+                    <div class="option-text">
+                        <span class="option-label">In a Cocktail</span>
+                        <span class="option-sub">Shaken, stirred, or blended with flair</span>
+                    </div>
+                </button>
+                <button class="option-card horizontal" data-value="mixed" onclick="App.selectOption(this, 'style')">
+                    <div class="option-emoji-sm">&#x1F379;</div>
+                    <div class="option-text">
+                        <span class="option-label">Simple Mix</span>
+                        <span class="option-sub">With soda, tonic, or juice — easy does it</span>
+                    </div>
+                </button>
+                <button class="option-card horizontal" data-value="surprise" onclick="App.selectOption(this, 'style')">
+                    <div class="option-emoji-sm">&#x1F381;</div>
+                    <div class="option-text">
+                        <span class="option-label">Surprise Me</span>
+                        <span class="option-sub">I'm open to anything — dealer's choice</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 5: SPIRIT BASE ==================== -->
+    <section class="screen" id="screen-base">
+        <div class="question-container">
+            <div class="progress-bar"><div class="progress-fill" style="width: 57%"></div></div>
+            <div class="step-label">Step 5 of 7</div>
+            <h2 class="question-title">Pick your<br><em>spirit base</em></h2>
+            <p class="question-desc">Which category are you drawn to? Pick up to 2.</p>
+            <div class="options-grid base-grid">
+                <button class="option-card base-card" data-value="vodka" onclick="App.toggleBase(this)">
+                    <div class="base-visual vodka-visual"></div>
+                    <span class="option-label">Vodka</span>
+                    <span class="option-sub">Smooth & versatile</span>
+                </button>
+                <button class="option-card base-card" data-value="gin" onclick="App.toggleBase(this)">
+                    <div class="base-visual gin-visual"></div>
+                    <span class="option-label">Gin</span>
+                    <span class="option-sub">Botanical & complex</span>
+                </button>
+                <button class="option-card base-card" data-value="whisky" onclick="App.toggleBase(this)">
+                    <div class="base-visual whisky-visual"></div>
+                    <span class="option-label">Whisky</span>
+                    <span class="option-sub">Rich & warming</span>
+                </button>
+                <button class="option-card base-card" data-value="rum" onclick="App.toggleBase(this)">
+                    <div class="base-visual rum-visual"></div>
+                    <span class="option-label">Rum</span>
+                    <span class="option-sub">Tropical & spirited</span>
+                </button>
+                <button class="option-card base-card" data-value="open" onclick="App.toggleBase(this)">
+                    <div class="base-visual open-visual"></div>
+                    <span class="option-label">Open to All</span>
+                    <span class="option-sub">Show me everything</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 6: OCCASION ==================== -->
+    <section class="screen" id="screen-occasion">
+        <div class="question-container">
+            <div class="progress-bar"><div class="progress-fill" style="width: 71%"></div></div>
+            <div class="step-label">Step 6 of 7</div>
+            <h2 class="question-title">What's the<br><em>occasion?</em></h2>
+            <p class="question-desc">What brings you to the tasting room?</p>
+            <div class="options-grid occasion-grid">
+                <button class="option-card" data-value="date" onclick="App.selectOption(this, 'occasion')">
+                    <div class="option-emoji">&#x1F496;</div>
+                    <span class="option-label">Date Night</span>
+                    <span class="option-sub">Romantic & intimate</span>
+                </button>
+                <button class="option-card" data-value="friends" onclick="App.selectOption(this, 'occasion')">
+                    <div class="option-emoji">&#x1F91D;</div>
+                    <span class="option-label">Friends Outing</span>
+                    <span class="option-sub">Good times & laughter</span>
+                </button>
+                <button class="option-card" data-value="celebration" onclick="App.selectOption(this, 'occasion')">
+                    <div class="option-emoji">&#x1F389;</div>
+                    <span class="option-label">Celebration</span>
+                    <span class="option-sub">A special moment</span>
+                </button>
+                <button class="option-card" data-value="explore" onclick="App.selectOption(this, 'occasion')">
+                    <div class="option-emoji">&#x2B50;</div>
+                    <span class="option-label">Just Exploring</span>
+                    <span class="option-sub">Here for the experience</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 7: INTENSITY ==================== -->
+    <section class="screen" id="screen-intensity">
+        <div class="question-container">
+            <div class="progress-bar"><div class="progress-fill" style="width: 85%"></div></div>
+            <div class="step-label">Step 7 of 7</div>
+            <h2 class="question-title">How bold do you<br><em>like it?</em></h2>
+            <p class="question-desc">Drag to set your flavour intensity preference</p>
+            <div class="slider-container">
+                <div class="slider-labels">
+                    <span>Gentle<br>& Light</span>
+                    <span>Balanced<br>& Smooth</span>
+                    <span>Bold<br>& Intense</span>
+                </div>
+                <div class="slider-track" id="sliderTrack">
+                    <div class="slider-fill" id="sliderFill"></div>
+                    <div class="slider-thumb" id="sliderThumb"></div>
+                </div>
+                <div class="intensity-value" id="intensityValue">Balanced</div>
+            </div>
+            <button class="btn-primary" onclick="App.submitIntensity()">
+                <span>Reveal My Spirit Profile</span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 8: GENERATING PROFILE ==================== -->
+    <section class="screen" id="screen-generating">
+        <div class="generating-container">
+            <div class="orb-container">
+                <div class="orb"></div>
+                <div class="orb-ring"></div>
+                <div class="orb-ring delay-1"></div>
+                <div class="orb-ring delay-2"></div>
+            </div>
+            <h2 class="generating-title">Crafting Your<br>Spirit Profile...</h2>
+            <div class="generating-steps">
+                <div class="gen-step" id="genStep1"><span class="gen-dot"></span> Analyzing your palate</div>
+                <div class="gen-step" id="genStep2"><span class="gen-dot"></span> Building your flavour DNA</div>
+                <div class="gen-step" id="genStep3"><span class="gen-dot"></span> Matching with our portfolio</div>
+                <div class="gen-step" id="genStep4"><span class="gen-dot"></span> Creating your avatar</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 9: PROFILE RESULT ==================== -->
+    <section class="screen" id="screen-profile">
+        <div class="profile-container">
+            <div class="profile-header">
+                <div class="avatar-wrapper">
+                    <canvas id="avatarCanvas" width="280" height="280"></canvas>
+                </div>
+                <h2 class="profile-name" id="profileName"></h2>
+                <div class="profile-archetype" id="profileArchetype"></div>
+                <p class="profile-desc" id="profileDesc"></p>
+            </div>
+
+            <div class="flavour-dna">
+                <h3 class="section-label">Your Flavour DNA</h3>
+                <div class="dna-bars" id="dnaBars"></div>
+            </div>
+
+            <div class="recommendations">
+                <h3 class="section-label">Your Perfect Matches from NB Distillers</h3>
+                <div class="reco-cards" id="recoCards"></div>
+            </div>
+
+            <div class="profile-actions">
+                <button class="btn-secondary" onclick="App.restart()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M1 4v6h6M23 20v-6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Start Over</span>
+                </button>
+                <button class="btn-primary" onclick="App.requestTasting()">
+                    <span>Request a Tasting</span>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+
+            <div class="profile-footer">
+                <div class="nb-badge">
+                    <img src="https://nbdistillers.com/wp-content/uploads/2021/01/whitelogo.png" alt="NB Distillers" class="footer-logo">
+                </div>
+                <p>Handcrafted in Welland, Ontario | Grain to Glass</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== TASTING REQUEST MODAL ==================== -->
+    <div class="modal-overlay" id="tastingModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="App.closeModal()">&times;</button>
+            <h3>Ready to Taste?</h3>
+            <p>Show this screen to our staff and they'll prepare your personalized tasting flight based on your profile!</p>
+            <div class="tasting-options">
+                <div class="tasting-tier">
+                    <div class="tier-badge">Flight</div>
+                    <div class="tier-name">5-Spirit Flight</div>
+                    <div class="tier-price">$10 / person</div>
+                </div>
+                <div class="tasting-tier featured">
+                    <div class="tier-badge">Popular</div>
+                    <div class="tier-name">Spirits + Snacks</div>
+                    <div class="tier-price">$20 / person</div>
+                </div>
+                <div class="tasting-tier">
+                    <div class="tier-badge">Premium</div>
+                    <div class="tier-name">Spirits + Feast</div>
+                    <div class="tier-price">$75 / person</div>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="App.closeModal()">
+                <span>Got It!</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
