@@ -107,6 +107,10 @@ html, body {
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.6s ease, visibility 0.6s ease;
+    /* Allow scrolling when content taller than viewport */
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
 }
 
 .screen.active {
@@ -125,6 +129,8 @@ html, body {
     text-align: center;
     padding: 40px;
     max-width: 700px;
+    flex-shrink: 0;
+    margin: auto;
 }
 
 .logo-container {
@@ -356,6 +362,9 @@ html, body {
     max-width: 720px;
     padding: 40px 32px;
     text-align: center;
+    /* Ensure container doesn't get flex-shrunk; allow natural height */
+    flex-shrink: 0;
+    margin: auto;         /* centres in flex when content fits; scrolls when it doesn't */
 }
 
 .progress-bar {
@@ -774,6 +783,8 @@ html, body {
 .generating-container {
     text-align: center;
     padding: 40px;
+    flex-shrink: 0;
+    margin: auto;
 }
 
 .orb-container {
@@ -1467,6 +1478,48 @@ html, body {
     }
     .style-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ============================================================
+   PHONE SCROLL FIX — ensure button always reachable
+   ============================================================ */
+
+/* On small phones, tighten pill spacing so button stays in view */
+@media (max-width: 480px) {
+    .flavour-grid {
+        gap: 8px;
+    }
+    .option-pill {
+        padding: 11px 18px;
+        font-size: 14px;
+    }
+    .pill-icon {
+        font-size: 15px;
+    }
+    .question-desc {
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+    .question-title {
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+    .step-label {
+        margin-bottom: 16px;
+    }
+    .question-container {
+        padding: 28px 20px 40px;
+    }
+    /* Avatar choice: single column on small phones already handled,
+       but also shrink the icons */
+    .avatar-choice-icon {
+        width: 56px;
+        height: 56px;
+    }
+    .avatar-choice-icon svg {
+        width: 28px;
+        height: 28px;
     }
 }
 
