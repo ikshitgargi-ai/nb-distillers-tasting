@@ -1469,3 +1469,454 @@ html, body {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+/* ============================================================
+   AVATAR CHOICE SCREEN
+   ============================================================ */
+.avatar-choice-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 660px;
+    margin: 0 auto 36px;
+}
+
+@media (max-width: 600px) {
+    .avatar-choice-grid {
+        grid-template-columns: 1fr;
+        max-width: 360px;
+    }
+}
+
+.avatar-choice-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 28px 16px 24px;
+    background: var(--glass);
+    border: 1.5px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: inherit;
+    overflow: hidden;
+    text-align: center;
+}
+
+.avatar-choice-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(201,168,76,0.08) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.avatar-choice-card:hover::before,
+.avatar-choice-card:active::before { opacity: 1; }
+
+.avatar-choice-card:hover,
+.avatar-choice-card:active {
+    border-color: rgba(201, 168, 76, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+}
+
+.animated-choice {
+    border-color: rgba(139, 108, 196, 0.3);
+}
+.animated-choice:hover {
+    border-color: rgba(139, 108, 196, 0.7);
+}
+
+.avatar-choice-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+    position: relative;
+    z-index: 1;
+}
+
+.camera-icon {
+    background: rgba(201, 168, 76, 0.12);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    color: var(--gold);
+}
+
+.upload-icon {
+    background: rgba(76, 168, 160, 0.12);
+    border: 1px solid rgba(76, 168, 160, 0.25);
+    color: var(--accent-teal);
+}
+
+.animated-icon {
+    background: rgba(139, 108, 196, 0.12);
+    border: 1px solid rgba(139, 108, 196, 0.25);
+    color: var(--accent-violet);
+}
+
+.avatar-choice-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+}
+
+.avatar-choice-sub {
+    font-size: 12px;
+    font-weight: 300;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    position: relative;
+    z-index: 1;
+}
+
+.avatar-choice-badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--dark);
+    background: var(--gold);
+    padding: 4px 10px;
+    border-radius: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.avatar-choice-badge.privacy {
+    background: var(--accent-violet);
+    color: white;
+}
+
+/* ============================================================
+   CAMERA OVERLAY
+   ============================================================ */
+.camera-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease;
+}
+
+.camera-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.camera-modal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+    max-width: 520px;
+    padding: 32px 24px;
+    transform: translateY(20px) scale(0.96);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.camera-overlay.active .camera-modal {
+    transform: translateY(0) scale(1);
+}
+
+.camera-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+
+.camera-close {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.camera-close:hover { background: rgba(255,255,255,0.15); }
+
+.camera-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+}
+
+.camera-viewport {
+    position: relative;
+    width: 340px;
+    height: 340px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--dark-surface);
+    border: 2px solid rgba(201,168,76,0.2);
+    box-shadow: 0 0 60px rgba(201,168,76,0.1);
+}
+
+@media (max-width: 480px) {
+    .camera-viewport {
+        width: 280px;
+        height: 280px;
+    }
+}
+
+#cameraVideo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); /* Mirror for selfie */
+}
+
+.photo-preview {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.camera-frame {
+    position: absolute;
+    inset: 12px;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.frame-corner {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-color: var(--gold);
+    border-style: solid;
+    opacity: 0.7;
+}
+
+.frame-corner.tl { top: 16px; left: 16px; border-width: 2px 0 0 2px; border-radius: 4px 0 0 0; }
+.frame-corner.tr { top: 16px; right: 16px; border-width: 2px 2px 0 0; border-radius: 0 4px 0 0; }
+.frame-corner.bl { bottom: 16px; left: 16px; border-width: 0 0 2px 2px; border-radius: 0 0 0 4px; }
+.frame-corner.br { bottom: 16px; right: 16px; border-width: 0 2px 2px 0; border-radius: 0 0 4px 0; }
+
+.camera-guide {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(201,168,76,0.8);
+    background: rgba(0,0,0,0.5);
+    padding: 6px 14px;
+    border-radius: 20px;
+    backdrop-filter: blur(8px);
+    white-space: nowrap;
+}
+
+.camera-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-capture {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.capture-ring {
+    position: absolute;
+    inset: 0;
+    border: 3px solid var(--gold);
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+}
+
+.btn-capture:hover .capture-ring,
+.btn-capture:active .capture-ring {
+    transform: scale(1.08);
+}
+
+.capture-dot {
+    width: 58px;
+    height: 58px;
+    background: white;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.btn-capture:hover .capture-dot,
+.btn-capture:active .capture-dot {
+    background: var(--gold);
+    transform: scale(0.92);
+}
+
+.retake-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ============================================================
+   PHOTO AVATAR OVERLAY (on profile)
+   ============================================================ */
+.avatar-photo-mode {
+    position: relative;
+}
+
+.avatar-photo-mode canvas {
+    border-radius: 50%;
+}
+
+/* ============================================================
+   PRINT STYLES
+   ============================================================ */
+@media print {
+    /* Hide everything except the profile */
+    body { background: white !important; color: #1A1A1A !important; overflow: visible !important; }
+    #ambientCanvas, #particles, .profile-actions, .modal-overlay,
+    .camera-overlay, .screen:not(#screen-profile) {
+        display: none !important;
+    }
+
+    #screen-profile {
+        position: static !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        height: auto !important;
+        width: 100% !important;
+    }
+
+    .profile-container {
+        height: auto !important;
+        overflow: visible !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+
+    /* Print card background */
+    .profile-header {
+        background: linear-gradient(135deg, #0D0D0D, #1A1A1A);
+        color: white;
+        padding: 32px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .profile-name { color: white !important; }
+    .profile-archetype { color: #C9A84C !important; }
+    .profile-desc { color: rgba(255,255,255,0.7) !important; }
+
+    .flavour-dna, .recommendations {
+        page-break-inside: avoid;
+    }
+
+    .reco-card {
+        border: 1px solid #ddd !important;
+        background: #f9f9f9 !important;
+        margin-bottom: 12px;
+        page-break-inside: avoid;
+    }
+
+    .reco-name { color: #1A1A1A !important; }
+    .reco-type, .reco-desc { color: #555 !important; }
+    .reco-price, .reco-match { color: #A07C2A !important; }
+    .section-label { color: #666 !important; }
+
+    .dna-track { background: #eee !important; }
+    .dna-label, .dna-value { color: #333 !important; }
+
+    .cocktail-label { color: #A07C2A !important; }
+    .cocktail-name { color: #1A1A1A !important; }
+    .cocktail-recipe { color: #666 !important; }
+    .reco-cocktail { background: #f5f0e8 !important; border-color: #d4c08c !important; }
+
+    .profile-footer {
+        text-align: center;
+        padding-top: 20px;
+        border-top: 1px solid #ddd;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .profile-footer p { color: #555 !important; }
+
+    .print-card-header {
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid #C9A84C;
+    }
+}
+
+/* Print card header — hidden on screen */
+.print-card-header { display: none; }
+
+/* ============================================================
+   ENHANCED PROFILE — PHOTO AVATAR LABEL
+   ============================================================ */
+.avatar-mode-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: -16px;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+/* ============================================================
+   LANDSCAPE iPad — avatar choice
+   ============================================================ */
+@media (orientation: landscape) and (min-width: 1024px) {
+    .avatar-choice-grid {
+        grid-template-columns: repeat(3, 1fr);
+        max-width: 760px;
+    }
+    .camera-viewport {
+        width: 380px;
+        height: 380px;
+    }
+}

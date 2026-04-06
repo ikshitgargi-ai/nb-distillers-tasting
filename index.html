@@ -50,7 +50,7 @@
     <section class="screen" id="screen-name">
         <div class="question-container">
             <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
-            <div class="step-label">Step 1 of 7</div>
+            <div class="step-label">Step 1 of 8</div>
             <h2 class="question-title">First, let's get<br><em>acquainted</em></h2>
             <p class="question-desc">What should we call you?</p>
             <div class="input-group">
@@ -64,11 +64,47 @@
         </div>
     </section>
 
-    <!-- ==================== SCREEN 2: MOOD ==================== -->
+    <!-- ==================== SCREEN 2: AVATAR CHOICE ==================== -->
+    <section class="screen" id="screen-avatar">
+        <div class="question-container">
+            <div class="progress-bar"><div class="progress-fill" style="width: 12%"></div></div>
+            <div class="step-label">Step 2 of 8</div>
+            <h2 class="question-title">Create your<br><em>spirit avatar</em></h2>
+            <p class="question-desc">Your avatar will appear on your spirit profile card</p>
+            <div class="avatar-choice-grid">
+                <button class="avatar-choice-card" onclick="App.openCamera()">
+                    <div class="avatar-choice-icon camera-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="1.5"/></svg>
+                    </div>
+                    <span class="avatar-choice-label">Take a Photo</span>
+                    <span class="avatar-choice-sub">We'll frame it with your spirit's colours</span>
+                    <div class="avatar-choice-badge">Recommended</div>
+                </button>
+                <button class="avatar-choice-card" onclick="App.openUpload()">
+                    <div class="avatar-choice-icon upload-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" stroke-width="1.5"/><polyline points="21 15 16 10 5 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <span class="avatar-choice-label">Upload a Photo</span>
+                    <span class="avatar-choice-sub">Choose from your camera roll</span>
+                </button>
+                <button class="avatar-choice-card animated-choice" onclick="App.useAnimatedAvatar()">
+                    <div class="avatar-choice-icon animated-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <span class="avatar-choice-label">Animated Avatar</span>
+                    <span class="avatar-choice-sub">No photo needed — we'll craft one from your spirit profile</span>
+                    <div class="avatar-choice-badge privacy">Private Option</div>
+                </button>
+            </div>
+            <input type="file" id="photoUpload" accept="image/*" style="display:none;" onchange="App.handleUpload(event)">
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 3: MOOD ==================== -->
     <section class="screen" id="screen-mood">
         <div class="question-container">
-            <div class="progress-bar"><div class="progress-fill" style="width: 14%"></div></div>
-            <div class="step-label">Step 2 of 7</div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 25%"></div></div>
+            <div class="step-label">Step 3 of 8</div>
             <h2 class="question-title">What's your<br><em>vibe today?</em></h2>
             <p class="question-desc">How are you feeling right now?</p>
             <div class="options-grid mood-grid">
@@ -96,11 +132,11 @@
         </div>
     </section>
 
-    <!-- ==================== SCREEN 3: FLAVOUR PREFERENCE ==================== -->
+    <!-- ==================== SCREEN 4: FLAVOUR PREFERENCE ==================== -->
     <section class="screen" id="screen-flavour">
         <div class="question-container">
-            <div class="progress-bar"><div class="progress-fill" style="width: 28%"></div></div>
-            <div class="step-label">Step 3 of 7</div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 37%"></div></div>
+            <div class="step-label">Step 4 of 8</div>
             <h2 class="question-title">Which flavours<br><em>call to you?</em></h2>
             <p class="question-desc">Pick up to 3 that excite your palate</p>
             <div class="options-grid flavour-grid">
@@ -139,11 +175,11 @@
         </div>
     </section>
 
-    <!-- ==================== SCREEN 4: DRINKING STYLE ==================== -->
+    <!-- ==================== SCREEN 5: DRINKING STYLE ==================== -->
     <section class="screen" id="screen-style">
         <div class="question-container">
-            <div class="progress-bar"><div class="progress-fill" style="width: 42%"></div></div>
-            <div class="step-label">Step 4 of 7</div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 50%"></div></div>
+            <div class="step-label">Step 5 of 8</div>
             <h2 class="question-title">How do you like<br><em>your spirit?</em></h2>
             <p class="question-desc">What's your go-to drinking style?</p>
             <div class="options-grid style-grid">
@@ -179,11 +215,11 @@
         </div>
     </section>
 
-    <!-- ==================== SCREEN 5: SPIRIT BASE ==================== -->
+    <!-- ==================== SCREEN 6: SPIRIT BASE ==================== -->
     <section class="screen" id="screen-base">
         <div class="question-container">
-            <div class="progress-bar"><div class="progress-fill" style="width: 57%"></div></div>
-            <div class="step-label">Step 5 of 7</div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 62%"></div></div>
+            <div class="step-label">Step 6 of 8</div>
             <h2 class="question-title">Pick your<br><em>spirit base</em></h2>
             <p class="question-desc">Which category are you drawn to? Pick up to 2.</p>
             <div class="options-grid base-grid">
@@ -216,11 +252,11 @@
         </div>
     </section>
 
-    <!-- ==================== SCREEN 6: OCCASION ==================== -->
+    <!-- ==================== SCREEN 7: OCCASION ==================== -->
     <section class="screen" id="screen-occasion">
         <div class="question-container">
-            <div class="progress-bar"><div class="progress-fill" style="width: 71%"></div></div>
-            <div class="step-label">Step 6 of 7</div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 75%"></div></div>
+            <div class="step-label">Step 7 of 8</div>
             <h2 class="question-title">What's the<br><em>occasion?</em></h2>
             <p class="question-desc">What brings you to the tasting room?</p>
             <div class="options-grid occasion-grid">
@@ -248,11 +284,11 @@
         </div>
     </section>
 
-    <!-- ==================== SCREEN 7: INTENSITY ==================== -->
+    <!-- ==================== SCREEN 8: INTENSITY ==================== -->
     <section class="screen" id="screen-intensity">
         <div class="question-container">
-            <div class="progress-bar"><div class="progress-fill" style="width: 85%"></div></div>
-            <div class="step-label">Step 7 of 7</div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 87%"></div></div>
+            <div class="step-label">Step 8 of 8</div>
             <h2 class="question-title">How bold do you<br><em>like it?</em></h2>
             <p class="question-desc">Drag to set your flavour intensity preference</p>
             <div class="slider-container">
@@ -288,7 +324,7 @@
                 <div class="gen-step" id="genStep1"><span class="gen-dot"></span> Analyzing your palate</div>
                 <div class="gen-step" id="genStep2"><span class="gen-dot"></span> Building your flavour DNA</div>
                 <div class="gen-step" id="genStep3"><span class="gen-dot"></span> Matching with our portfolio</div>
-                <div class="gen-step" id="genStep4"><span class="gen-dot"></span> Creating your avatar</div>
+                <div class="gen-step" id="genStep4"><span class="gen-dot"></span> Crafting your spirit avatar</div>
             </div>
         </div>
     </section>
@@ -319,6 +355,10 @@
                 <button class="btn-secondary" onclick="App.restart()">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M1 4v6h6M23 20v-6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <span>Start Over</span>
+                </button>
+                <button class="btn-secondary" onclick="App.printProfile()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><polyline points="6 9 6 2 18 2 18 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="6" y="14" width="12" height="8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Print Profile</span>
                 </button>
                 <button class="btn-primary" onclick="App.requestTasting()">
                     <span>Request a Tasting</span>
@@ -361,6 +401,46 @@
             <button class="btn-primary" onclick="App.closeModal()">
                 <span>Got It!</span>
             </button>
+        </div>
+    </div>
+
+    <!-- ==================== CAMERA OVERLAY ==================== -->
+    <div class="camera-overlay" id="cameraOverlay">
+        <div class="camera-modal">
+            <div class="camera-header">
+                <button class="camera-close" onclick="App.closeCamera()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </button>
+                <span class="camera-title">Position your face in the frame</span>
+            </div>
+            <div class="camera-viewport">
+                <video id="cameraVideo" autoplay playsinline muted></video>
+                <canvas id="captureCanvas" style="display:none;"></canvas>
+                <div class="camera-frame">
+                    <div class="frame-corner tl"></div>
+                    <div class="frame-corner tr"></div>
+                    <div class="frame-corner bl"></div>
+                    <div class="frame-corner br"></div>
+                </div>
+                <div class="camera-guide">Centre your face</div>
+                <img id="photoPreview" class="photo-preview" alt="Preview" style="display:none;">
+            </div>
+            <div class="camera-actions" id="cameraActions">
+                <button class="btn-capture" onclick="App.capturePhoto()" id="captureBtn">
+                    <div class="capture-ring"></div>
+                    <div class="capture-dot"></div>
+                </button>
+            </div>
+            <div class="retake-actions" id="retakeActions" style="display:none;">
+                <button class="btn-secondary" onclick="App.retakePhoto()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M1 4v6h6M20.49 9A9 9 0 005.64 5.64L1 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Retake
+                </button>
+                <button class="btn-primary" onclick="App.usePhoto()">
+                    <span>Use This Photo</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
         </div>
     </div>
 

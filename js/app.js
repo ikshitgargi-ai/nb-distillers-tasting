@@ -12,7 +12,10 @@ const App = (() => {
         bases: [],
         occasion: '',
         intensity: 50, // 0-100
-        currentScreen: 'screen-welcome'
+        currentScreen: 'screen-welcome',
+        avatarMode: 'animated',   // 'animated' | 'photo'
+        photoDataURL: null,        // base64 data URL of captured/uploaded photo
+        avatarAnimFrame: null      // requestAnimationFrame ID for avatar animation
     };
 
     // ==================== PRODUCT DATABASE ====================
@@ -404,6 +407,14 @@ const App = (() => {
 
         transitioning = true;
 
+        // Cancel avatar animation when leaving profile screen
+        if (state.currentScreen === 'screen-profile' && screenId !== 'screen-profile') {
+            if (state.avatarAnimFrame) {
+                cancelAnimationFrame(state.avatarAnimFrame);
+                state.avatarAnimFrame = null;
+            }
+        }
+
         if (current) {
             current.classList.add('exit');
             current.classList.remove('active');
@@ -441,6 +452,130 @@ const App = (() => {
         const input = document.getElementById('userName');
         state.name = input.value.trim();
         if (state.name.length < 1) return;
+        goToScreen('screen-avatar');
+    }
+
+    // ==================== AVATAR CHOICE ====================
+    let cameraStream = null;
+
+    function openCamera() {
+        const overlay = document.getElementById('cameraOverlay');
+        overlay.classList.add('active');
+        document.getElementById('captureBtn').style.display = 'flex';
+        document.getElementById('cameraActions').style.display = 'flex';
+        document.getElementById('retakeActions').style.display = 'none';
+        document.getElementById('photoPreview').style.display = 'none';
+        document.getElementById('cameraVideo').style.display = 'block';
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert('Camera not available on this device. Please upload a photo instead.');
+            overlay.classList.remove('active');
+            return;
+        }
+
+        navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 720 } }
+        }).then(stream => {
+            cameraStream = stream;
+            const video = document.getElementById('cameraVideo');
+            video.srcObject = stream;
+        }).catch(err => {
+            console.warn('Camera error:', err);
+            overlay.classList.remove('active');
+            alert('Camera access was denied. You can upload a photo or use an animated avatar instead.');
+        });
+    }
+
+    function capturePhoto() {
+        const video = document.getElementById('cameraVideo');
+        const canvas = document.getElementById('captureCanvas');
+        const size = Math.min(video.videoWidth, video.videoHeight);
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+
+        // Center crop
+        const offsetX = (video.videoWidth - size) / 2;
+        const offsetY = (video.videoHeight - size) / 2;
+        // Mirror for selfie
+        ctx.translate(size, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, offsetX, offsetY, size, size, 0, 0, size, size);
+
+        const dataURL = canvas.toDataURL('image/jpeg', 0.9);
+
+        // Show preview
+        const preview = document.getElementById('photoPreview');
+        preview.src = dataURL;
+        preview.style.display = 'block';
+        video.style.display = 'none';
+
+        document.getElementById('cameraActions').style.display = 'none';
+        document.getElementById('retakeActions').style.display = 'flex';
+
+        // Store temporarily
+        state.photoDataURL = dataURL;
+
+        // Stop camera stream to save battery
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(t => t.pause());
+        }
+    }
+
+    function retakePhoto() {
+        state.photoDataURL = null;
+        const video = document.getElementById('cameraVideo');
+        const preview = document.getElementById('photoPreview');
+        video.style.display = 'block';
+        preview.style.display = 'none';
+        document.getElementById('cameraActions').style.display = 'flex';
+        document.getElementById('retakeActions').style.display = 'none';
+
+        // Resume camera
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(t => t.enabled = true);
+        } else {
+            openCamera();
+        }
+    }
+
+    function usePhoto() {
+        state.avatarMode = 'photo';
+        closeCamera();
+        goToScreen('screen-mood');
+    }
+
+    function closeCamera() {
+        const overlay = document.getElementById('cameraOverlay');
+        overlay.classList.remove('active');
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(t => t.stop());
+            cameraStream = null;
+        }
+        document.getElementById('cameraVideo').srcObject = null;
+    }
+
+    function openUpload() {
+        document.getElementById('photoUpload').click();
+    }
+
+    function handleUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            state.photoDataURL = e.target.result;
+            state.avatarMode = 'photo';
+            goToScreen('screen-mood');
+        };
+        reader.readAsDataURL(file);
+        // Reset file input so same file can be selected again if needed
+        event.target.value = '';
+    }
+
+    function useAnimatedAvatar() {
+        state.avatarMode = 'animated';
+        state.photoDataURL = null;
         goToScreen('screen-mood');
     }
 
@@ -731,115 +866,256 @@ const App = (() => {
     }
 
     // ==================== AVATAR CANVAS ====================
+    const flavourColors = {
+        citrus: '#E8C84C', spice: '#D4724C', floral: '#C480A8', sweet: '#D89060',
+        herbal: '#6CAC7C', smoky: '#8C7060', coffee: '#6C4830', fruity: '#C46080', clean: '#88B8D0'
+    };
+
     function drawAvatar(archetype) {
+        // Stop any existing animation
+        if (state.avatarAnimFrame) {
+            cancelAnimationFrame(state.avatarAnimFrame);
+            state.avatarAnimFrame = null;
+        }
+
+        if (state.avatarMode === 'photo' && state.photoDataURL) {
+            drawPhotoAvatar(archetype);
+        } else {
+            drawAnimatedAvatar(archetype);
+        }
+    }
+
+    function drawPhotoAvatar(archetype) {
+        const canvas = document.getElementById('avatarCanvas');
+        const ctx = canvas.getContext('2d');
+        const size = 280;
+        const cx = size / 2;
+        const cy = size / 2;
+        const radius = 130;
+
+        canvas.width = size * 2;
+        canvas.height = size * 2;
+        ctx.scale(2, 2);
+
+        let rotation = 0;
+
+        const img = new Image();
+        img.onload = () => {
+            function frame() {
+                ctx.clearRect(0, 0, size, size);
+                rotation += 0.003;
+
+                // Animated petal ring behind photo
+                state.flavours.forEach((flavour, i) => {
+                    const baseAngle = i * (Math.PI * 2 / state.flavours.length) - Math.PI / 2;
+                    const angle = baseAngle + rotation * 0.5;
+                    const color = flavourColors[flavour] || archetype.color;
+                    const innerR = radius - 8;
+                    const outerR = radius + 18;
+
+                    ctx.save();
+                    ctx.translate(cx, cy);
+                    ctx.rotate(angle);
+                    const pg = ctx.createLinearGradient(0, -innerR, 0, -outerR);
+                    pg.addColorStop(0, color + '80');
+                    pg.addColorStop(1, color + '10');
+                    ctx.fillStyle = pg;
+                    ctx.beginPath();
+                    ctx.moveTo(0, -innerR);
+                    ctx.bezierCurveTo(18, -innerR - 8, 14, -outerR + 6, 0, -outerR);
+                    ctx.bezierCurveTo(-14, -outerR + 6, -18, -innerR - 8, 0, -innerR);
+                    ctx.fill();
+                    ctx.restore();
+                });
+
+                // Intensity arc (animated glow)
+                const intensityAngle = (state.intensity / 100) * Math.PI * 2;
+                const pulse = 1 + Math.sin(rotation * 4) * 0.3;
+                ctx.save();
+                ctx.strokeStyle = archetype.color;
+                ctx.lineWidth = 3.5;
+                ctx.lineCap = 'round';
+                ctx.shadowColor = archetype.color;
+                ctx.shadowBlur = 10 * pulse;
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius - 2, -Math.PI / 2, -Math.PI / 2 + intensityAngle);
+                ctx.stroke();
+                ctx.restore();
+
+                // Decorative orbit dots
+                for (let i = 0; i < 8; i++) {
+                    const a = (i / 8) * Math.PI * 2 + rotation;
+                    const x = cx + Math.cos(a) * (radius + 10);
+                    const y = cy + Math.sin(a) * (radius + 10);
+                    const dotSize = i % 2 === 0 ? 2.5 : 1.5;
+                    ctx.fillStyle = archetype.color + (i % 2 === 0 ? '80' : '40');
+                    ctx.beginPath();
+                    ctx.arc(x, y, dotSize, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Photo clipped to circle
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius - 4, 0, Math.PI * 2);
+                ctx.clip();
+                ctx.drawImage(img, cx - radius + 4, cy - radius + 4, (radius - 4) * 2, (radius - 4) * 2);
+
+                // Subtle archetype overlay
+                const overlay = ctx.createRadialGradient(cx, cy, 60, cx, cy, radius - 4);
+                overlay.addColorStop(0, 'transparent');
+                overlay.addColorStop(0.8, 'transparent');
+                overlay.addColorStop(1, archetype.color + '50');
+                ctx.fillStyle = overlay;
+                ctx.fillRect(cx - radius, cy - radius, (radius) * 2, (radius) * 2);
+                ctx.restore();
+
+                state.avatarAnimFrame = requestAnimationFrame(frame);
+            }
+            frame();
+        };
+        img.src = state.photoDataURL;
+    }
+
+    function drawAnimatedAvatar(archetype) {
         const canvas = document.getElementById('avatarCanvas');
         const ctx = canvas.getContext('2d');
         const size = 280;
         const cx = size / 2;
         const cy = size / 2;
 
-        canvas.width = size * 2; // retina
+        canvas.width = size * 2;
         canvas.height = size * 2;
         ctx.scale(2, 2);
 
-        // Background circle
-        const bgGrad = ctx.createRadialGradient(cx, cy, 20, cx, cy, 130);
-        bgGrad.addColorStop(0, archetype.color + '40');
-        bgGrad.addColorStop(0.6, archetype.color + '15');
-        bgGrad.addColorStop(1, 'rgba(13,13,13,0.8)');
-        ctx.fillStyle = bgGrad;
-        ctx.beginPath();
-        ctx.arc(cx, cy, 130, 0, Math.PI * 2);
-        ctx.fill();
+        let rotation = 0;
+        const moodIcons = { adventurous: '✶', relaxed: '~', celebratory: '✦', curious: '◇' };
 
-        // Outer ring
-        ctx.strokeStyle = archetype.color + '60';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(cx, cy, 128, 0, Math.PI * 2);
-        ctx.stroke();
+        function frame() {
+            ctx.clearRect(0, 0, size, size);
+            rotation += 0.005;
 
-        // Inner geometric pattern based on flavour DNA
-        const flavourCount = state.flavours.length || 3;
-        const angleStep = (Math.PI * 2) / Math.max(flavourCount * 2, 6);
-        const innerR = 40;
-        const outerR = 90;
+            // Background circle with pulsing glow
+            const pulse = 1 + Math.sin(rotation * 2) * 0.15;
+            const bgGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, 130);
+            bgGrad.addColorStop(0, archetype.color + '35');
+            bgGrad.addColorStop(0.5, archetype.color + '12');
+            bgGrad.addColorStop(1, 'rgba(13,13,13,0.9)');
+            ctx.fillStyle = bgGrad;
+            ctx.beginPath();
+            ctx.arc(cx, cy, 130, 0, Math.PI * 2);
+            ctx.fill();
 
-        // Draw petals
-        state.flavours.forEach((flavour, i) => {
-            const angle = i * (Math.PI * 2 / state.flavours.length) - Math.PI / 2;
-            const colors = {
-                citrus: '#E8C84C', spice: '#D4724C', floral: '#C480A8', sweet: '#D89060',
-                herbal: '#6CAC7C', smoky: '#8C7060', coffee: '#6C4830', fruity: '#C46080', clean: '#88B8D0'
-            };
-            const color = colors[flavour] || archetype.color;
+            // Rotating petals
+            const petalCount = Math.max(state.flavours.length, 3);
+            state.flavours.forEach((flavour, i) => {
+                const angle = i * (Math.PI * 2 / petalCount) - Math.PI / 2 + rotation;
+                const color = flavourColors[flavour] || archetype.color;
+                const innerR = 38;
+                const outerR = 88 + Math.sin(rotation * 3 + i) * 6;
 
-            // Petal shape
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.rotate(angle);
+
+                const petalGrad = ctx.createLinearGradient(0, -innerR, 0, -outerR);
+                petalGrad.addColorStop(0, color + '70');
+                petalGrad.addColorStop(1, color + '08');
+
+                ctx.fillStyle = petalGrad;
+                ctx.beginPath();
+                ctx.moveTo(0, -innerR);
+                ctx.bezierCurveTo(28, -innerR - 14, 22, -outerR + 10, 0, -outerR);
+                ctx.bezierCurveTo(-22, -outerR + 10, -28, -innerR - 14, 0, -innerR);
+                ctx.fill();
+
+                ctx.strokeStyle = color + '60';
+                ctx.lineWidth = 0.8;
+                ctx.beginPath();
+                ctx.moveTo(0, -innerR);
+                ctx.lineTo(0, -outerR + 6);
+                ctx.stroke();
+
+                ctx.restore();
+            });
+
+            // Counter-rotating secondary petals
+            if (state.flavours.length >= 2) {
+                state.flavours.slice(0, 2).forEach((flavour, i) => {
+                    const angle = i * Math.PI - rotation * 0.7 + Math.PI / 4;
+                    const color = flavourColors[flavour] || archetype.color;
+
+                    ctx.save();
+                    ctx.translate(cx, cy);
+                    ctx.rotate(angle);
+                    ctx.globalAlpha = 0.35;
+
+                    const pg = ctx.createLinearGradient(0, -30, 0, -70);
+                    pg.addColorStop(0, color + '80');
+                    pg.addColorStop(1, color + '00');
+                    ctx.fillStyle = pg;
+                    ctx.beginPath();
+                    ctx.moveTo(0, -30);
+                    ctx.bezierCurveTo(18, -38, 14, -65, 0, -70);
+                    ctx.bezierCurveTo(-14, -65, -18, -38, 0, -30);
+                    ctx.fill();
+                    ctx.restore();
+                });
+            }
+
+            // Orbiting sparkle dots
+            for (let i = 0; i < 12; i++) {
+                const a = (i / 12) * Math.PI * 2 + rotation * (i % 2 === 0 ? 1 : -0.8);
+                const r = 100 + Math.sin(rotation * 2 + i * 0.5) * 8;
+                const x = cx + Math.cos(a) * r;
+                const y = cy + Math.sin(a) * r;
+                const dotSize = i % 3 === 0 ? 3 : 1.5;
+                const alpha = (0.2 + Math.sin(rotation * 3 + i) * 0.2).toFixed(2);
+                ctx.fillStyle = archetype.color + Math.round(parseFloat(alpha) * 255).toString(16).padStart(2, '0');
+                ctx.beginPath();
+                ctx.arc(x, y, dotSize, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Center orb with glow
+            const orbR = 28 * pulse;
+            const centerGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, orbR);
+            centerGrad.addColorStop(0, archetype.color + 'FF');
+            centerGrad.addColorStop(0.6, archetype.color + 'CC');
+            centerGrad.addColorStop(1, archetype.color + '00');
             ctx.save();
-            ctx.translate(cx, cy);
-            ctx.rotate(angle);
-
-            const petalGrad = ctx.createLinearGradient(0, -innerR, 0, -outerR);
-            petalGrad.addColorStop(0, color + '60');
-            petalGrad.addColorStop(1, color + '10');
-
-            ctx.fillStyle = petalGrad;
+            ctx.shadowColor = archetype.color;
+            ctx.shadowBlur = 20 * pulse;
+            ctx.fillStyle = centerGrad;
             ctx.beginPath();
-            ctx.moveTo(0, -innerR);
-            ctx.bezierCurveTo(30, -innerR - 15, 25, -outerR + 10, 0, -outerR);
-            ctx.bezierCurveTo(-25, -outerR + 10, -30, -innerR - 15, 0, -innerR);
+            ctx.arc(cx, cy, orbR, 0, Math.PI * 2);
             ctx.fill();
-
-            // Petal line
-            ctx.strokeStyle = color + '80';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(0, -innerR);
-            ctx.lineTo(0, -outerR + 5);
-            ctx.stroke();
-
             ctx.restore();
-        });
 
-        // Center orb
-        const centerGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 30);
-        centerGrad.addColorStop(0, archetype.color);
-        centerGrad.addColorStop(0.7, archetype.color + '80');
-        centerGrad.addColorStop(1, archetype.color + '00');
-        ctx.fillStyle = centerGrad;
-        ctx.beginPath();
-        ctx.arc(cx, cy, 30, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Intensity ring
-        const intensityAngle = (state.intensity / 100) * Math.PI * 2;
-        ctx.strokeStyle = archetype.color;
-        ctx.lineWidth = 3;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.arc(cx, cy, 110, -Math.PI / 2, -Math.PI / 2 + intensityAngle);
-        ctx.stroke();
-
-        // Decorative dots
-        for (let i = 0; i < 12; i++) {
-            const angle = (i / 12) * Math.PI * 2;
-            const x = cx + Math.cos(angle) * 105;
-            const y = cy + Math.sin(angle) * 105;
-            ctx.fillStyle = archetype.color + '30';
+            // Intensity arc
+            const intensityAngle = (state.intensity / 100) * Math.PI * 2;
+            ctx.save();
+            ctx.strokeStyle = archetype.color;
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.shadowColor = archetype.color;
+            ctx.shadowBlur = 8;
             ctx.beginPath();
-            ctx.arc(x, y, 2, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.arc(cx, cy, 112, -Math.PI / 2, -Math.PI / 2 + intensityAngle);
+            ctx.stroke();
+            ctx.restore();
+
+            // Mood symbol in center
+            ctx.fillStyle = '#0D0D0D';
+            ctx.font = 'bold 22px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(moodIcons[state.mood] || '✦', cx, cy);
+
+            state.avatarAnimFrame = requestAnimationFrame(frame);
         }
 
-        // Mood icon in center
-        ctx.fillStyle = '#0D0D0D';
-        ctx.font = '600 16px "Space Grotesk"';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        const moodIcons = { adventurous: '\u2736', relaxed: '\u223F', celebratory: '\u2726', curious: '\u25C7' };
-        ctx.fillStyle = '#0D0D0D';
-        ctx.font = '24px sans-serif';
-        ctx.fillText(moodIcons[state.mood] || '\u2726', cx, cy);
+        frame();
     }
 
     // ==================== MODAL ====================
@@ -851,8 +1127,28 @@ const App = (() => {
         document.getElementById('tastingModal').classList.remove('active');
     }
 
+    // ==================== PRINT ====================
+    function printProfile() {
+        // Pause avatar animation during print
+        if (state.avatarAnimFrame) {
+            cancelAnimationFrame(state.avatarAnimFrame);
+        }
+        window.print();
+        // Restart animation after print dialog closes
+        setTimeout(() => {
+            const archetype = determineArchetype();
+            drawAvatar(archetype);
+        }, 500);
+    }
+
     // ==================== RESTART ====================
     function restart() {
+        // Stop avatar animation
+        if (state.avatarAnimFrame) {
+            cancelAnimationFrame(state.avatarAnimFrame);
+            state.avatarAnimFrame = null;
+        }
+
         // Reset state
         state.name = '';
         state.mood = '';
@@ -861,6 +1157,8 @@ const App = (() => {
         state.bases = [];
         state.occasion = '';
         state.intensity = 50;
+        state.avatarMode = 'animated';
+        state.photoDataURL = null;
 
         // Reset all selections
         document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
@@ -897,13 +1195,25 @@ const App = (() => {
     return {
         startJourney,
         submitName,
+        // Avatar
+        openCamera,
+        capturePhoto,
+        retakePhoto,
+        usePhoto,
+        closeCamera,
+        openUpload,
+        handleUpload,
+        useAnimatedAvatar,
+        // Quiz
         selectOption,
         togglePill,
         submitFlavour,
         toggleBase,
         submitIntensity,
+        // Profile
         requestTasting,
         closeModal,
+        printProfile,
         restart
     };
 })();
