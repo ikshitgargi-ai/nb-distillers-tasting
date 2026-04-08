@@ -274,7 +274,37 @@
         </div>
     </section>
 
-    <!-- ==================== SCREEN 8: GENERATING PROFILE ==================== -->
+    <!-- ==================== SCREEN 8: CAMERA / PHOTO ==================== -->
+    <section class="screen" id="screen-camera">
+        <div class="question-container camera-container">
+            <div class="progress-bar"><div class="progress-fill" style="width: 95%"></div></div>
+            <div class="step-label">Almost There</div>
+            <h2 class="question-title">Let's create<br><em>your avatar</em></h2>
+            <p class="question-desc">Take a selfie and we'll transform it into your spirit avatar</p>
+            <div class="camera-preview-wrap">
+                <video id="cameraFeed" autoplay playsinline muted></video>
+                <canvas id="photoCanvas" style="display:none;"></canvas>
+                <img id="photoPreview" style="display:none;" alt="Your photo">
+                <div class="camera-overlay">
+                    <div class="camera-ring"></div>
+                </div>
+            </div>
+            <div class="camera-actions">
+                <button class="btn-primary" id="captureBtn" onclick="App.capturePhoto()">
+                    <span>&#x1F4F8; Take Photo</span>
+                </button>
+                <button class="btn-primary" id="retakeBtn" onclick="App.retakePhoto()" style="display:none;">
+                    <span>&#x1F504; Retake</span>
+                </button>
+                <button class="btn-primary" id="usePhotoBtn" onclick="App.usePhoto()" style="display:none;">
+                    <span>Use This Photo &#x2192;</span>
+                </button>
+            </div>
+            <button class="btn-skip" onclick="App.skipPhoto()">Skip &mdash; generate without photo</button>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 9: GENERATING PROFILE ==================== -->
     <section class="screen" id="screen-generating">
         <div class="generating-container">
             <div class="orb-container">
