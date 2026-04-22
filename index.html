@@ -2,23 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no, maximum-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NB Distillers">
+    <meta name="theme-color" content="#0D0D0D">
     <title>NB Distillers — Discover Your Spirit</title>
     <link rel="icon" href="https://nbdistillers.com/wp-content/uploads/2021/01/Untitled_design__27_-removebg-preview-150x150.png">
     <link rel="apple-touch-icon" href="https://nbdistillers.com/wp-content/uploads/2021/01/Untitled_design__27_-removebg-preview-150x150.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,600&family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <!-- Ambient Background -->
-    <canvas id="ambientCanvas"></canvas>
+    <!-- Animated Mesh Gradient Background -->
+    <div class="mesh-bg">
+        <div class="mesh-blob blob-1"></div>
+        <div class="mesh-blob blob-2"></div>
+        <div class="mesh-blob blob-3"></div>
+        <div class="mesh-blob blob-4"></div>
+    </div>
 
-    <!-- Floating Particles -->
+    <!-- Noise Texture Overlay -->
+    <div class="noise-overlay"></div>
+
+    <!-- Floating Sparkles -->
     <div id="particles"></div>
 
     <!-- ==================== SCREEN 0: WELCOME ==================== -->
@@ -28,20 +38,26 @@
                 <div class="logo-ring"></div>
                 <div class="logo-ring delay-1"></div>
                 <div class="logo-ring delay-2"></div>
+                <div class="logo-ring delay-3"></div>
                 <img src="https://nbdistillers.com/wp-content/uploads/2021/01/whitelogo.png" alt="NB Distillers" class="logo-img">
             </div>
-            <h1 class="welcome-title">Discover Your<br><em>Perfect Spirit</em></h1>
+            <div class="welcome-badge">
+                <span class="badge-dot"></span>
+                CRAFT DISTILLERY · EST. 2020
+            </div>
+            <h1 class="welcome-title">
+                Discover Your<br>
+                <em class="gradient-text">Perfect Spirit</em>
+            </h1>
             <p class="welcome-subtitle">An immersive journey through flavour, aroma, and craft.<br>Find the spirit that speaks to your soul.</p>
             <button class="btn-primary pulse-glow" onclick="App.startJourney()">
                 <span>Begin Your Journey</span>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
             <div class="welcome-footer">
-                <span>Welland, Ontario</span>
-                <span class="dot"></span>
-                <span>Grain to Glass</span>
-                <span class="dot"></span>
-                <span>Small Batch Craft</span>
+                <span class="footer-tag">&#x1F343; Welland, Ontario</span>
+                <span class="footer-tag">&#x1F33E; Grain to Glass</span>
+                <span class="footer-tag">&#x2728; Small Batch</span>
             </div>
         </div>
     </section>
@@ -49,9 +65,9 @@
     <!-- ==================== SCREEN 1: NAME INPUT ==================== -->
     <section class="screen" id="screen-name">
         <div class="question-container">
-            <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
-            <div class="step-label">Step 1 of 7</div>
-            <h2 class="question-title">First, let's get<br><em>acquainted</em></h2>
+            <div class="progress-bar"><div class="progress-fill" style="width: 5%"></div></div>
+            <div class="step-label">Step 1 of 8</div>
+            <h2 class="question-title">First, let's get<br><em class="gradient-text">acquainted</em></h2>
             <p class="question-desc">What should we call you?</p>
             <div class="input-group">
                 <input type="text" id="userName" class="text-input" placeholder="Your first name" autocomplete="off" maxlength="20">
@@ -59,7 +75,7 @@
             </div>
             <button class="btn-primary" onclick="App.submitName()" id="nameBtn" disabled>
                 <span>Continue</span>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
         </div>
     </section>
@@ -67,30 +83,30 @@
     <!-- ==================== SCREEN 2: MOOD ==================== -->
     <section class="screen" id="screen-mood">
         <div class="question-container">
-            <div class="progress-bar"><div class="progress-fill" style="width: 14%"></div></div>
-            <div class="step-label">Step 2 of 7</div>
-            <h2 class="question-title">What's your<br><em>vibe today?</em></h2>
+            <div class="progress-bar"><div class="progress-fill" style="width: 16%"></div></div>
+            <div class="step-label">Step 2 of 8</div>
+            <h2 class="question-title">What's your<br><em class="gradient-text">vibe today?</em></h2>
             <p class="question-desc">How are you feeling right now?</p>
             <div class="options-grid mood-grid">
                 <button class="option-card" data-value="adventurous" onclick="App.selectOption(this, 'mood')">
                     <div class="option-emoji">&#x1F30D;</div>
                     <span class="option-label">Adventurous</span>
-                    <span class="option-sub">Ready to explore the unknown</span>
+                    <span class="option-sub">Ready to explore</span>
                 </button>
                 <button class="option-card" data-value="relaxed" onclick="App.selectOption(this, 'mood')">
                     <div class="option-emoji">&#x1F60C;</div>
                     <span class="option-label">Relaxed</span>
-                    <span class="option-sub">Chill vibes & easy sipping</span>
+                    <span class="option-sub">Chill & easy</span>
                 </button>
                 <button class="option-card" data-value="celebratory" onclick="App.selectOption(this, 'mood')">
                     <div class="option-emoji">&#x1F973;</div>
                     <span class="option-label">Celebratory</span>
-                    <span class="option-sub">Let's raise a glass!</span>
+                    <span class="option-sub">Let's toast!</span>
                 </button>
                 <button class="option-card" data-value="curious" onclick="App.selectOption(this, 'mood')">
                     <div class="option-emoji">&#x1F9D0;</div>
                     <span class="option-label">Curious</span>
-                    <span class="option-sub">Teach me something new</span>
+                    <span class="option-sub">Teach me something</span>
                 </button>
             </div>
         </div>
@@ -100,58 +116,122 @@
     <section class="screen" id="screen-flavour">
         <div class="question-container">
             <div class="progress-bar"><div class="progress-fill" style="width: 28%"></div></div>
-            <div class="step-label">Step 3 of 7</div>
-            <h2 class="question-title">Which flavours<br><em>call to you?</em></h2>
+            <div class="step-label">Step 3 of 8</div>
+            <h2 class="question-title">Which flavours<br><em class="gradient-text">call to you?</em></h2>
             <p class="question-desc">Pick up to 3 that excite your palate</p>
             <div class="options-grid flavour-grid">
-                <button class="option-pill" data-value="citrus" onclick="App.togglePill(this, 'flavour')">
-                    <span class="pill-icon">&#127819;</span> Citrus & Bright
+                <button class="option-pill" data-value="citrus" onclick="App.togglePill(this)">
+                    <span class="pill-icon">&#x1F34B;</span> Citrus & Bright
                 </button>
-                <button class="option-pill" data-value="spice" onclick="App.togglePill(this, 'flavour')">
-                    <span class="pill-icon">&#127798;</span> Warm Spice
+                <button class="option-pill" data-value="spice" onclick="App.togglePill(this)">
+                    <span class="pill-icon">&#x1F336;</span> Warm Spice
                 </button>
-                <button class="option-pill" data-value="floral" onclick="App.togglePill(this, 'flavour')">
-                    <span class="pill-icon">&#127800;</span> Floral & Aromatic
+                <button class="option-pill" data-value="floral" onclick="App.togglePill(this)">
+                    <span class="pill-icon">&#x1F338;</span> Floral & Aromatic
                 </button>
-                <button class="option-pill" data-value="sweet" onclick="App.togglePill(this, 'flavour')">
-                    <span class="pill-icon">&#127855;</span> Rich & Sweet
+                <button class="option-pill" data-value="sweet" onclick="App.togglePill(this)">
+                    <span class="pill-icon">&#x1F36F;</span> Rich & Sweet
                 </button>
-                <button class="option-pill" data-value="herbal" onclick="App.togglePill(this, 'flavour')">
-                    <span class="pill-icon">&#127807;</span> Herbal & Earthy
+                <button class="option-pill" data-value="herbal" onclick="App.togglePill(this)">
+                    <span class="pill-icon">&#x1F33F;</span> Herbal & Earthy
                 </button>
-                <button class="option-pill" data-value="smoky" onclick="App.togglePill(this, 'flavour')">
-                    <span class="pill-icon">&#128293;</span> Smoky & Bold
+                <button class="option-pill" data-value="smoky" onclick="App.togglePill(this)">
+                    <span class="pill-icon">&#x1F525;</span> Smoky & Bold
                 </button>
-                <button class="option-pill" data-value="coffee" onclick="App.togglePill(this, 'flavour')">
-                    <span class="pill-icon">&#9749;</span> Coffee & Roasted
+                <button class="option-pill" data-value="coffee" onclick="App.togglePill(this)">
+                    <span class="pill-icon">&#x2615;</span> Coffee & Roasted
                 </button>
-                <button class="option-pill" data-value="fruity" onclick="App.togglePill(this, 'flavour')">
-                    <span class="pill-icon">&#127815;</span> Berry & Fruity
+                <button class="option-pill" data-value="fruity" onclick="App.togglePill(this)">
+                    <span class="pill-icon">&#x1F347;</span> Berry & Fruity
                 </button>
-                <button class="option-pill" data-value="clean" onclick="App.togglePill(this, 'flavour')">
-                    <span class="pill-icon">&#10052;</span> Clean & Crisp
+                <button class="option-pill" data-value="clean" onclick="App.togglePill(this)">
+                    <span class="pill-icon">&#x2744;</span> Clean & Crisp
                 </button>
             </div>
             <button class="btn-primary" onclick="App.submitFlavour()" id="flavourBtn" disabled>
                 <span>Continue</span>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
         </div>
     </section>
 
-    <!-- ==================== SCREEN 4: DRINKING STYLE ==================== -->
+    <!-- ==================== SCREEN 4: FOOD PAIRING (NUTS & FRUITS) ==================== -->
+    <section class="screen" id="screen-pairing">
+        <div class="question-container">
+            <div class="progress-bar"><div class="progress-fill" style="width: 40%"></div></div>
+            <div class="step-label">Step 4 of 8</div>
+            <h2 class="question-title">Nibbles &<br><em class="gradient-text">pairings</em></h2>
+            <p class="question-desc">Which snacks make your spirit sing? Pick up to 3.</p>
+            <div class="options-grid pairing-grid">
+                <button class="pairing-card" data-value="almonds" onclick="App.togglePairing(this)">
+                    <div class="pairing-emoji">&#x1F95C;</div>
+                    <span class="option-label">Roasted Almonds</span>
+                </button>
+                <button class="pairing-card" data-value="walnuts" onclick="App.togglePairing(this)">
+                    <div class="pairing-emoji">&#x1F330;</div>
+                    <span class="option-label">Walnuts &amp; Pecans</span>
+                </button>
+                <button class="pairing-card" data-value="cashews" onclick="App.togglePairing(this)">
+                    <div class="pairing-emoji">&#x1F9C2;</div>
+                    <span class="option-label">Salted Cashews</span>
+                </button>
+                <button class="pairing-card" data-value="pistachios" onclick="App.togglePairing(this)">
+                    <div class="pairing-emoji">&#x1F331;</div>
+                    <span class="option-label">Pistachios</span>
+                </button>
+                <button class="pairing-card" data-value="berries" onclick="App.togglePairing(this)">
+                    <div class="pairing-emoji">&#x1F347;</div>
+                    <span class="option-label">Fresh Berries</span>
+                </button>
+                <button class="pairing-card" data-value="citrus_fruit" onclick="App.togglePairing(this)">
+                    <div class="pairing-emoji">&#x1F34A;</div>
+                    <span class="option-label">Citrus Fruits</span>
+                </button>
+                <button class="pairing-card" data-value="tropical" onclick="App.togglePairing(this)">
+                    <div class="pairing-emoji">&#x1F34D;</div>
+                    <span class="option-label">Tropical Fruits</span>
+                </button>
+                <button class="pairing-card" data-value="apple_pear" onclick="App.togglePairing(this)">
+                    <div class="pairing-emoji">&#x1F34E;</div>
+                    <span class="option-label">Apple &amp; Pear</span>
+                </button>
+                <button class="pairing-card" data-value="dark_choc" onclick="App.togglePairing(this)">
+                    <div class="pairing-emoji">&#x1F36B;</div>
+                    <span class="option-label">Dark Chocolate</span>
+                </button>
+                <button class="pairing-card" data-value="cheese" onclick="App.togglePairing(this)">
+                    <div class="pairing-emoji">&#x1F9C0;</div>
+                    <span class="option-label">Aged Cheese</span>
+                </button>
+                <button class="pairing-card" data-value="dried_fruit" onclick="App.togglePairing(this)">
+                    <div class="pairing-emoji">&#x1F347;</div>
+                    <span class="option-label">Dried Fruit</span>
+                </button>
+                <button class="pairing-card" data-value="honey" onclick="App.togglePairing(this)">
+                    <div class="pairing-emoji">&#x1F36F;</div>
+                    <span class="option-label">Honeycomb</span>
+                </button>
+            </div>
+            <button class="btn-primary" onclick="App.submitPairing()" id="pairingBtn" disabled>
+                <span>Continue</span>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 5: DRINKING STYLE ==================== -->
     <section class="screen" id="screen-style">
         <div class="question-container">
-            <div class="progress-bar"><div class="progress-fill" style="width: 42%"></div></div>
-            <div class="step-label">Step 4 of 7</div>
-            <h2 class="question-title">How do you like<br><em>your spirit?</em></h2>
+            <div class="progress-bar"><div class="progress-fill" style="width: 52%"></div></div>
+            <div class="step-label">Step 5 of 8</div>
+            <h2 class="question-title">How do you like<br><em class="gradient-text">your spirit?</em></h2>
             <p class="question-desc">What's your go-to drinking style?</p>
             <div class="options-grid style-grid">
                 <button class="option-card horizontal" data-value="neat" onclick="App.selectOption(this, 'style')">
                     <div class="option-emoji-sm">&#x1F943;</div>
                     <div class="option-text">
                         <span class="option-label">Neat or On the Rocks</span>
-                        <span class="option-sub">Pure, uncut, the way it was meant to be</span>
+                        <span class="option-sub">Pure, uncut — the way it was meant to be</span>
                     </div>
                 </button>
                 <button class="option-card horizontal" data-value="cocktail" onclick="App.selectOption(this, 'style')">
@@ -179,36 +259,46 @@
         </div>
     </section>
 
-    <!-- ==================== SCREEN 5: SPIRIT BASE ==================== -->
+    <!-- ==================== SCREEN 6: SPIRIT BASE ==================== -->
     <section class="screen" id="screen-base">
         <div class="question-container">
-            <div class="progress-bar"><div class="progress-fill" style="width: 57%"></div></div>
-            <div class="step-label">Step 5 of 7</div>
-            <h2 class="question-title">Pick your<br><em>spirit base</em></h2>
+            <div class="progress-bar"><div class="progress-fill" style="width: 64%"></div></div>
+            <div class="step-label">Step 6 of 8</div>
+            <h2 class="question-title">Pick your<br><em class="gradient-text">spirit base</em></h2>
             <p class="question-desc">Which category are you drawn to? Pick up to 2.</p>
             <div class="options-grid base-grid">
                 <button class="option-card base-card" data-value="vodka" onclick="App.toggleBase(this)">
-                    <div class="base-visual vodka-visual"></div>
+                    <div class="base-visual vodka-visual">
+                        <div class="base-shine"></div>
+                    </div>
                     <span class="option-label">Vodka</span>
-                    <span class="option-sub">Smooth & versatile</span>
+                    <span class="option-sub">Smooth &amp; versatile</span>
                 </button>
                 <button class="option-card base-card" data-value="gin" onclick="App.toggleBase(this)">
-                    <div class="base-visual gin-visual"></div>
+                    <div class="base-visual gin-visual">
+                        <div class="base-shine"></div>
+                    </div>
                     <span class="option-label">Gin</span>
-                    <span class="option-sub">Botanical & complex</span>
+                    <span class="option-sub">Botanical &amp; complex</span>
                 </button>
                 <button class="option-card base-card" data-value="whisky" onclick="App.toggleBase(this)">
-                    <div class="base-visual whisky-visual"></div>
+                    <div class="base-visual whisky-visual">
+                        <div class="base-shine"></div>
+                    </div>
                     <span class="option-label">Whisky</span>
-                    <span class="option-sub">Rich & warming</span>
+                    <span class="option-sub">Rich &amp; warming</span>
                 </button>
                 <button class="option-card base-card" data-value="rum" onclick="App.toggleBase(this)">
-                    <div class="base-visual rum-visual"></div>
+                    <div class="base-visual rum-visual">
+                        <div class="base-shine"></div>
+                    </div>
                     <span class="option-label">Rum</span>
-                    <span class="option-sub">Tropical & spirited</span>
+                    <span class="option-sub">Tropical &amp; spirited</span>
                 </button>
                 <button class="option-card base-card" data-value="open" onclick="App.toggleBase(this)">
-                    <div class="base-visual open-visual"></div>
+                    <div class="base-visual open-visual">
+                        <div class="base-shine"></div>
+                    </div>
                     <span class="option-label">Open to All</span>
                     <span class="option-sub">Show me everything</span>
                 </button>
@@ -216,23 +306,23 @@
         </div>
     </section>
 
-    <!-- ==================== SCREEN 6: OCCASION ==================== -->
+    <!-- ==================== SCREEN 7: OCCASION ==================== -->
     <section class="screen" id="screen-occasion">
         <div class="question-container">
-            <div class="progress-bar"><div class="progress-fill" style="width: 71%"></div></div>
-            <div class="step-label">Step 6 of 7</div>
-            <h2 class="question-title">What's the<br><em>occasion?</em></h2>
+            <div class="progress-bar"><div class="progress-fill" style="width: 76%"></div></div>
+            <div class="step-label">Step 7 of 8</div>
+            <h2 class="question-title">What's the<br><em class="gradient-text">occasion?</em></h2>
             <p class="question-desc">What brings you to the tasting room?</p>
             <div class="options-grid occasion-grid">
                 <button class="option-card" data-value="date" onclick="App.selectOption(this, 'occasion')">
                     <div class="option-emoji">&#x1F496;</div>
                     <span class="option-label">Date Night</span>
-                    <span class="option-sub">Romantic & intimate</span>
+                    <span class="option-sub">Romantic &amp; intimate</span>
                 </button>
                 <button class="option-card" data-value="friends" onclick="App.selectOption(this, 'occasion')">
                     <div class="option-emoji">&#x1F91D;</div>
                     <span class="option-label">Friends Outing</span>
-                    <span class="option-sub">Good times & laughter</span>
+                    <span class="option-sub">Good times &amp; laughter</span>
                 </button>
                 <button class="option-card" data-value="celebration" onclick="App.selectOption(this, 'occasion')">
                     <div class="option-emoji">&#x1F389;</div>
@@ -248,63 +338,66 @@
         </div>
     </section>
 
-    <!-- ==================== SCREEN 7: INTENSITY ==================== -->
+    <!-- ==================== SCREEN 8: INTENSITY ==================== -->
     <section class="screen" id="screen-intensity">
         <div class="question-container">
-            <div class="progress-bar"><div class="progress-fill" style="width: 85%"></div></div>
-            <div class="step-label">Step 7 of 7</div>
-            <h2 class="question-title">How bold do you<br><em>like it?</em></h2>
-            <p class="question-desc">Drag to set your flavour intensity preference</p>
+            <div class="progress-bar"><div class="progress-fill" style="width: 88%"></div></div>
+            <div class="step-label">Step 8 of 8</div>
+            <h2 class="question-title">How bold do you<br><em class="gradient-text">like it?</em></h2>
+            <p class="question-desc">Drag to set your flavour intensity</p>
             <div class="slider-container">
                 <div class="slider-labels">
-                    <span>Gentle<br>& Light</span>
-                    <span>Balanced<br>& Smooth</span>
-                    <span>Bold<br>& Intense</span>
+                    <span>&#x1F331;<br>Gentle</span>
+                    <span>&#x2696;&#xFE0F;<br>Balanced</span>
+                    <span>&#x1F525;<br>Bold</span>
                 </div>
                 <div class="slider-track" id="sliderTrack">
                     <div class="slider-fill" id="sliderFill"></div>
-                    <div class="slider-thumb" id="sliderThumb"></div>
+                    <div class="slider-thumb" id="sliderThumb">
+                        <div class="thumb-pulse"></div>
+                    </div>
                 </div>
-                <div class="intensity-value" id="intensityValue">Balanced</div>
+                <div class="intensity-value" id="intensityValue">Balanced & Smooth</div>
             </div>
             <button class="btn-primary" onclick="App.submitIntensity()">
-                <span>Reveal My Spirit Profile</span>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Create My Avatar</span>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
         </div>
     </section>
 
-    <!-- ==================== SCREEN 8: CAMERA / PHOTO ==================== -->
+    <!-- ==================== SCREEN 9: CAMERA / PHOTO ==================== -->
     <section class="screen" id="screen-camera">
         <div class="question-container camera-container">
             <div class="progress-bar"><div class="progress-fill" style="width: 95%"></div></div>
             <div class="step-label">Almost There</div>
-            <h2 class="question-title">Let's create<br><em>your avatar</em></h2>
-            <p class="question-desc">Take a selfie and we'll transform it into your spirit avatar</p>
+            <h2 class="question-title">Your Spirit<br><em class="gradient-text">Avatar</em></h2>
+            <p class="question-desc">Take a selfie and we'll transform you into a one-of-a-kind spirit avatar</p>
             <div class="camera-preview-wrap">
                 <video id="cameraFeed" autoplay playsinline muted></video>
                 <canvas id="photoCanvas" style="display:none;"></canvas>
                 <img id="photoPreview" style="display:none;" alt="Your photo">
                 <div class="camera-overlay">
                     <div class="camera-ring"></div>
+                    <div class="camera-ring-inner"></div>
                 </div>
             </div>
             <div class="camera-actions">
                 <button class="btn-primary" id="captureBtn" onclick="App.capturePhoto()">
                     <span>&#x1F4F8; Take Photo</span>
                 </button>
-                <button class="btn-primary" id="retakeBtn" onclick="App.retakePhoto()" style="display:none;">
+                <button class="btn-secondary" id="retakeBtn" onclick="App.retakePhoto()" style="display:none;">
                     <span>&#x1F504; Retake</span>
                 </button>
                 <button class="btn-primary" id="usePhotoBtn" onclick="App.usePhoto()" style="display:none;">
                     <span>Use This Photo &#x2192;</span>
                 </button>
             </div>
-            <button class="btn-skip" onclick="App.skipPhoto()">Skip &mdash; generate without photo</button>
+            <button class="btn-skip" onclick="App.skipPhoto()">Skip — generate without photo</button>
         </div>
     </section>
 
-    <!-- ==================== SCREEN 9: GENERATING PROFILE ==================== -->
+    <!-- ==================== SCREEN 10: GENERATING PROFILE ==================== -->
     <section class="screen" id="screen-generating">
         <div class="generating-container">
             <div class="orb-container">
@@ -312,8 +405,12 @@
                 <div class="orb-ring"></div>
                 <div class="orb-ring delay-1"></div>
                 <div class="orb-ring delay-2"></div>
+                <div class="orb-sparkle s1"></div>
+                <div class="orb-sparkle s2"></div>
+                <div class="orb-sparkle s3"></div>
+                <div class="orb-sparkle s4"></div>
             </div>
-            <h2 class="generating-title">Crafting Your<br>Spirit Profile...</h2>
+            <h2 class="generating-title">Crafting Your<br><em class="gradient-text">Spirit Profile</em></h2>
             <div class="generating-steps">
                 <div class="gen-step" id="genStep1"><span class="gen-dot"></span> Analyzing your palate</div>
                 <div class="gen-step" id="genStep2"><span class="gen-dot"></span> Building your flavour DNA</div>
@@ -323,11 +420,12 @@
         </div>
     </section>
 
-    <!-- ==================== SCREEN 9: PROFILE RESULT ==================== -->
+    <!-- ==================== SCREEN 11: PROFILE RESULT ==================== -->
     <section class="screen" id="screen-profile">
         <div class="profile-container">
             <div class="profile-header">
                 <div class="avatar-wrapper">
+                    <div class="avatar-particle-field" id="avatarParticles"></div>
                     <canvas id="avatarCanvas" width="280" height="280"></canvas>
                 </div>
                 <h2 class="profile-name" id="profileName"></h2>
@@ -336,23 +434,23 @@
             </div>
 
             <div class="flavour-dna">
-                <h3 class="section-label">Your Flavour DNA</h3>
+                <h3 class="section-label">&#x2728; Your Flavour DNA</h3>
                 <div class="dna-bars" id="dnaBars"></div>
             </div>
 
             <div class="recommendations">
-                <h3 class="section-label">Your Perfect Matches from NB Distillers</h3>
+                <h3 class="section-label">&#x1F943; Your Perfect Matches</h3>
                 <div class="reco-cards" id="recoCards"></div>
             </div>
 
             <div class="profile-actions">
                 <button class="btn-secondary" onclick="App.restart()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M1 4v6h6M23 20v-6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M1 4v6h6M23 20v-6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <span>Start Over</span>
                 </button>
                 <button class="btn-primary" onclick="App.requestTasting()">
-                    <span>Request a Tasting</span>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Request Tasting</span>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
             </div>
 
@@ -360,7 +458,7 @@
                 <div class="nb-badge">
                     <img src="https://nbdistillers.com/wp-content/uploads/2021/01/whitelogo.png" alt="NB Distillers" class="footer-logo">
                 </div>
-                <p>Handcrafted in Welland, Ontario | Grain to Glass</p>
+                <p>Handcrafted in Welland, Ontario · Grain to Glass · Small Batch</p>
             </div>
         </div>
     </section>
@@ -369,23 +467,24 @@
     <div class="modal-overlay" id="tastingModal">
         <div class="modal-content">
             <button class="modal-close" onclick="App.closeModal()">&times;</button>
+            <div class="modal-emoji">&#x1F943;</div>
             <h3>Ready to Taste?</h3>
-            <p>Show this screen to our staff and they'll prepare your personalized tasting flight based on your profile!</p>
+            <p>Show this screen to our staff and they'll prepare your personalized tasting flight!</p>
             <div class="tasting-options">
                 <div class="tasting-tier">
                     <div class="tier-badge">Flight</div>
                     <div class="tier-name">5-Spirit Flight</div>
-                    <div class="tier-price">$10 / person</div>
+                    <div class="tier-price">$10</div>
                 </div>
                 <div class="tasting-tier featured">
-                    <div class="tier-badge">Popular</div>
+                    <div class="tier-badge">&#x2B50; Popular</div>
                     <div class="tier-name">Spirits + Snacks</div>
-                    <div class="tier-price">$20 / person</div>
+                    <div class="tier-price">$20</div>
                 </div>
                 <div class="tasting-tier">
                     <div class="tier-badge">Premium</div>
                     <div class="tier-name">Spirits + Feast</div>
-                    <div class="tier-price">$75 / person</div>
+                    <div class="tier-price">$75</div>
                 </div>
             </div>
             <button class="btn-primary" onclick="App.closeModal()">
