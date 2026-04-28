@@ -552,109 +552,371 @@ const App = (() => {
         }
     }
 
+    // ---------- AI-Style Photo Transformation ----------
+    function hexToRgb(hex) {
+        hex = hex.replace('#', '');
+        return [parseInt(hex.slice(0, 2), 16), parseInt(hex.slice(2, 4), 16), parseInt(hex.slice(4, 6), 16)];
+    }
+
+    function paletteForArchetype(archetype) {
+        // Tritone palette: shadow, midtone, highlight (mapped from luminance)
+        const base = hexToRgb(archetype.color);
+        return [
+            [Math.round(base[0] * 0.18), Math.round(base[1] * 0.18), Math.round(base[2] * 0.22)], // deep shadow
+            [Math.round(base[0] * 0.45), Math.round(base[1] * 0.4), Math.round(base[2] * 0.5)],  // shadow
+            base,                                                                                  // midtone
+            [Math.min(255, base[0] + (255 - base[0]) * 0.5),
+             Math.min(255, base[1] + (255 - base[1]) * 0.5),
+             Math.min(255, base[2] + (255 - base[2]) * 0.5)],                                    // highlight
+            [Math.min(255, base[0] + (255 - base[0]) * 0.85),
+             Math.min(255, base[1] + (255 - base[1]) * 0.85),
+             Math.min(255, base[2] + (255 - base[2]) * 0.85)]                                    // glow
+        ];
+    }
+
+    function applyAIStyle(ctx, size, archetype) {
+        const imgData = ctx.getImageData(0, 0, size, size);
+        const data = imgData.data;
+        const palette = paletteForArchetype(archetype);
+        const N = palette.length;
+
+        // Posterize + palette-map by luminance
+        for (let i = 0; i < data.length; i += 4) {
+            const lum = (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]) / 255;
+            const idx = Math.min(N - 1, Math.floor(lum * N));
+            const c = palette[idx];
+            // 70% palette mapping, 30% original luminance preserved for detail
+            data[i]     = Math.round(c[0] * 0.78 + data[i]     * 0.22);
+            data[i + 1] = Math.round(c[1] * 0.78 + data[i + 1] * 0.22);
+            data[i + 2] = Math.round(c[2] * 0.78 + data[i + 2] * 0.22);
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+    }
+
     function drawPhotoAvatar(ctx, img, archetype, cx, cy, size) {
+        // Use a hidden working canvas for AI processing
+        const work = document.createElement('canvas');
+        work.width = size;
+        work.height = size;
+        const wctx = work.getContext('2d');
+
+        // Slightly increase contrast/saturation via filter before drawing
+        wctx.filter = 'contrast(1.15) saturate(1.3) brightness(1.05)';
+        wctx.drawImage(img, 0, 0, size, size);
+        wctx.filter = 'none';
+
+        // Apply AI palette transformation
+        applyAIStyle(wctx, size, archetype);
+
+        // Now compose onto main canvas
         ctx.clearRect(0, 0, size, size);
 
-        // Background
+        // Background halo
         const bg = ctx.createRadialGradient(cx, cy, 40, cx, cy, 140);
-        bg.addColorStop(0, archetype.color + '20');
+        bg.addColorStop(0, archetype.color + '30');
         bg.addColorStop(1, 'transparent');
         ctx.fillStyle = bg;
         ctx.fillRect(0, 0, size, size);
 
-        // Circular clip
+        // Circular clip and draw transformed photo
         ctx.save();
         ctx.beginPath();
-        ctx.arc(cx, cy, 118, 0, Math.PI * 2);
+        ctx.arc(cx, cy, 116, 0, Math.PI * 2);
         ctx.clip();
+        ctx.drawImage(work, 0, 0);
 
-        // Draw photo
-        ctx.drawImage(img, 0, 0, size, size);
-
-        // Stylistic overlays
-        ctx.globalCompositeOperation = 'overlay';
-        const overlay = ctx.createLinearGradient(0, 0, size, size);
-        overlay.addColorStop(0, archetype.color + '50');
-        overlay.addColorStop(1, archetype.color + '20');
-        ctx.fillStyle = overlay;
-        ctx.fillRect(0, 0, size, size);
-
-        ctx.globalCompositeOperation = 'color';
-        const tint = ctx.createRadialGradient(cx, cy - 20, 40, cx, cy, 150);
-        tint.addColorStop(0, 'transparent');
-        tint.addColorStop(1, archetype.color + '45');
-        ctx.fillStyle = tint;
-        ctx.fillRect(0, 0, size, size);
-
-        // Vignette
+        // Glamour vignette
         ctx.globalCompositeOperation = 'multiply';
-        const vignette = ctx.createRadialGradient(cx, cy, 60, cx, cy, 140);
+        const vignette = ctx.createRadialGradient(cx, cy - 8, 40, cx, cy, 130);
         vignette.addColorStop(0, 'rgba(255,255,255,1)');
-        vignette.addColorStop(0.65, 'rgba(220,220,220,1)');
-        vignette.addColorStop(1, 'rgba(40,40,40,1)');
+        vignette.addColorStop(0.7, 'rgba(220,210,200,1)');
+        vignette.addColorStop(1, 'rgba(20,15,10,1)');
         ctx.fillStyle = vignette;
         ctx.fillRect(0, 0, size, size);
-
-        ctx.restore();
         ctx.globalCompositeOperation = 'source-over';
+        ctx.restore();
 
-        // Outer ring + glow
+        // Connoisseur accessories overlaid on the photo
+        drawConnoisseurAccessories(ctx, archetype, cx, cy);
+
+        // Gilded outer frame
         ctx.strokeStyle = archetype.color;
         ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.arc(cx, cy, 120, 0, Math.PI * 2);
+        ctx.arc(cx, cy, 118, 0, Math.PI * 2);
         ctx.stroke();
 
-        ctx.strokeStyle = archetype.color + '30';
+        // Outer accent ring
+        ctx.strokeStyle = archetype.color + '40';
         ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.arc(cx, cy, 130, 0, Math.PI * 2);
+        ctx.arc(cx, cy, 128, 0, Math.PI * 2);
         ctx.stroke();
 
-        drawFlavourPetals(ctx, archetype, cx, cy, 120, 138);
+        drawFlavourPetals(ctx, archetype, cx, cy, 119, 137);
 
-        // Intensity arc
+        // Intensity arc (gold leaf style)
         const intensityAngle = (state.intensity / 100) * Math.PI * 2;
         ctx.strokeStyle = archetype.color;
         ctx.lineWidth = 4;
         ctx.lineCap = 'round';
         ctx.beginPath();
-        ctx.arc(cx, cy, 126, -Math.PI / 2, -Math.PI / 2 + intensityAngle);
+        ctx.arc(cx, cy, 124, -Math.PI / 2, -Math.PI / 2 + intensityAngle);
         ctx.stroke();
 
         drawDecoDots(ctx, archetype, cx, cy, 132);
+    }
+
+    // ---------- Connoisseur Accessories: Top Hat, Monocle, Mustache ----------
+    function drawConnoisseurAccessories(ctx, archetype, cx, cy) {
+        const gold = archetype.color;
+        const goldDark = '#1a1410';
+
+        // ----- TOP HAT (above the head) -----
+        ctx.save();
+        // Hat brim
+        ctx.fillStyle = goldDark;
+        ctx.beginPath();
+        ctx.ellipse(cx, cy - 70, 56, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Hat body
+        const hatGrad = ctx.createLinearGradient(cx - 30, cy - 110, cx + 30, cy - 70);
+        hatGrad.addColorStop(0, '#0a0806');
+        hatGrad.addColorStop(0.5, '#1f1812');
+        hatGrad.addColorStop(1, '#0a0806');
+        ctx.fillStyle = hatGrad;
+        ctx.beginPath();
+        ctx.moveTo(cx - 32, cy - 70);
+        ctx.lineTo(cx - 30, cy - 112);
+        ctx.lineTo(cx + 30, cy - 112);
+        ctx.lineTo(cx + 32, cy - 70);
+        ctx.closePath();
+        ctx.fill();
+        // Top of hat (ellipse cap)
+        ctx.fillStyle = '#15100c';
+        ctx.beginPath();
+        ctx.ellipse(cx, cy - 112, 30, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Gold band on hat
+        ctx.fillStyle = gold;
+        ctx.fillRect(cx - 31, cy - 80, 62, 6);
+        // Band shine
+        ctx.fillStyle = 'rgba(255,255,255,0.3)';
+        ctx.fillRect(cx - 31, cy - 79, 62, 1.5);
+        ctx.restore();
+
+        // ----- MONOCLE (right eye area) -----
+        ctx.save();
+        // Monocle glass (subtle frosted)
+        ctx.fillStyle = 'rgba(255,255,255,0.08)';
+        ctx.beginPath();
+        ctx.arc(cx + 24, cy - 12, 18, 0, Math.PI * 2);
+        ctx.fill();
+        // Gold rim
+        ctx.strokeStyle = gold;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(cx + 24, cy - 12, 18, 0, Math.PI * 2);
+        ctx.stroke();
+        // Inner highlight
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(cx + 22, cy - 14, 16, Math.PI * 1.1, Math.PI * 1.6);
+        ctx.stroke();
+        // Chain (curls down to coat)
+        ctx.strokeStyle = gold;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(cx + 42, cy - 10);
+        ctx.bezierCurveTo(cx + 60, cy + 5, cx + 50, cy + 30, cx + 30, cy + 50);
+        ctx.stroke();
+        ctx.restore();
+
+        // ----- CURLED MUSTACHE -----
+        ctx.save();
+        ctx.strokeStyle = '#1a1208';
+        ctx.fillStyle = '#1a1208';
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        // Left side
+        ctx.beginPath();
+        ctx.moveTo(cx, cy + 22);
+        ctx.bezierCurveTo(cx - 12, cy + 24, cx - 22, cy + 18, cx - 28, cy + 14);
+        ctx.bezierCurveTo(cx - 32, cy + 10, cx - 30, cy + 6, cx - 26, cy + 8);
+        ctx.stroke();
+        // Right side
+        ctx.beginPath();
+        ctx.moveTo(cx, cy + 22);
+        ctx.bezierCurveTo(cx + 12, cy + 24, cx + 22, cy + 18, cx + 28, cy + 14);
+        ctx.bezierCurveTo(cx + 32, cy + 10, cx + 30, cy + 6, cx + 26, cy + 8);
+        ctx.stroke();
+        // Center bump
+        ctx.beginPath();
+        ctx.arc(cx, cy + 22, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // ----- BOW TIE (below chin) -----
+        ctx.save();
+        ctx.fillStyle = gold;
+        // Left wing
+        ctx.beginPath();
+        ctx.moveTo(cx, cy + 65);
+        ctx.lineTo(cx - 22, cy + 56);
+        ctx.lineTo(cx - 22, cy + 76);
+        ctx.closePath();
+        ctx.fill();
+        // Right wing
+        ctx.beginPath();
+        ctx.moveTo(cx, cy + 65);
+        ctx.lineTo(cx + 22, cy + 56);
+        ctx.lineTo(cx + 22, cy + 76);
+        ctx.closePath();
+        ctx.fill();
+        // Center knot
+        ctx.fillStyle = goldDark;
+        ctx.fillRect(cx - 4, cy + 60, 8, 12);
+        // Subtle shine on bow tie
+        ctx.fillStyle = 'rgba(255,255,255,0.25)';
+        ctx.beginPath();
+        ctx.moveTo(cx - 18, cy + 60);
+        ctx.lineTo(cx - 6, cy + 64);
+        ctx.lineTo(cx - 18, cy + 68);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+
+        // ----- SPARKLES around the head -----
+        ctx.save();
+        ctx.fillStyle = gold;
+        const sparkles = [
+            [cx - 80, cy - 60], [cx + 80, cy - 50], [cx - 90, cy + 30],
+            [cx + 92, cy + 20], [cx - 70, cy - 100], [cx + 70, cy - 100]
+        ];
+        sparkles.forEach(([x, y]) => {
+            ctx.beginPath();
+            ctx.arc(x, y, 1.8, 0, Math.PI * 2);
+            ctx.fill();
+            // Cross sparkle
+            ctx.fillRect(x - 0.5, y - 5, 1, 10);
+            ctx.fillRect(x - 5, y - 0.5, 10, 1);
+        });
+        ctx.restore();
     }
 
     function drawGeometricAvatar(ctx, archetype, cx, cy) {
         const size = 280;
         ctx.clearRect(0, 0, size, size);
 
+        // Soft circular gradient backdrop
         const bgGrad = ctx.createRadialGradient(cx, cy, 20, cx, cy, 130);
-        bgGrad.addColorStop(0, archetype.color + '50');
-        bgGrad.addColorStop(0.6, archetype.color + '18');
-        bgGrad.addColorStop(1, 'rgba(13,13,13,0.9)');
-        ctx.fillStyle = bgGrad;
+        bgGrad.addColorStop(0, archetype.color + '60');
+        bgGrad.addColorStop(0.6, archetype.color + '20');
+        bgGrad.addColorStop(1, 'rgba(13,13,13,0.95)');
+        ctx.save();
         ctx.beginPath();
-        ctx.arc(cx, cy, 130, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.arc(cx, cy, 116, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, size, size);
 
-        ctx.strokeStyle = archetype.color + '80';
-        ctx.lineWidth = 2;
+        // Stylized connoisseur silhouette (face shape)
+        const skinTone = 'rgba(245, 215, 175, 0.85)';
+        // Neck
+        ctx.fillStyle = 'rgba(40, 30, 22, 0.7)';
+        ctx.fillRect(cx - 14, cy + 30, 28, 40);
+        // Shoulders/coat
+        ctx.fillStyle = '#1a1410';
+        ctx.beginPath();
+        ctx.moveTo(cx - 60, cy + 130);
+        ctx.bezierCurveTo(cx - 60, cy + 70, cx - 30, cy + 60, cx, cy + 65);
+        ctx.bezierCurveTo(cx + 30, cy + 60, cx + 60, cy + 70, cx + 60, cy + 130);
+        ctx.lineTo(cx - 60, cy + 130);
+        ctx.closePath();
+        ctx.fill();
+        // Lapels
+        ctx.fillStyle = '#0a0806';
+        ctx.beginPath();
+        ctx.moveTo(cx - 8, cy + 70);
+        ctx.lineTo(cx - 30, cy + 130);
+        ctx.lineTo(cx - 14, cy + 130);
+        ctx.lineTo(cx, cy + 90);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(cx + 8, cy + 70);
+        ctx.lineTo(cx + 30, cy + 130);
+        ctx.lineTo(cx + 14, cy + 130);
+        ctx.lineTo(cx, cy + 90);
+        ctx.closePath();
+        ctx.fill();
+        // Pocket square
+        ctx.fillStyle = archetype.color;
+        ctx.beginPath();
+        ctx.moveTo(cx + 32, cy + 95);
+        ctx.lineTo(cx + 44, cy + 95);
+        ctx.lineTo(cx + 38, cy + 88);
+        ctx.closePath();
+        ctx.fill();
+        // Face (oval)
+        ctx.fillStyle = skinTone;
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + 5, 38, 48, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Subtle face shading
+        ctx.fillStyle = 'rgba(180, 130, 90, 0.25)';
+        ctx.beginPath();
+        ctx.ellipse(cx + 8, cy + 12, 32, 40, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Eyebrows
+        ctx.strokeStyle = '#1a1208';
+        ctx.lineWidth = 2.5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(cx - 18, cy - 8);
+        ctx.lineTo(cx - 6, cy - 10);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(cx + 6, cy - 10);
+        ctx.lineTo(cx + 18, cy - 8);
+        ctx.stroke();
+        // Eyes
+        ctx.fillStyle = '#0a0806';
+        ctx.beginPath();
+        ctx.arc(cx - 12, cy, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(cx + 12, cy, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        // Nose
+        ctx.strokeStyle = 'rgba(150, 100, 70, 0.5)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(cx - 2, cy + 4);
+        ctx.quadraticCurveTo(cx - 4, cy + 14, cx, cy + 16);
+        ctx.stroke();
+
+        ctx.restore();
+
+        // Connoisseur accessories on top
+        drawConnoisseurAccessories(ctx, archetype, cx, cy);
+
+        // Outer frame
+        ctx.strokeStyle = archetype.color;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 118, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = archetype.color + '40';
+        ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.arc(cx, cy, 128, 0, Math.PI * 2);
         ctx.stroke();
 
-        drawFlavourPetals(ctx, archetype, cx, cy, 40, 92);
-
-        // Center gradient orb
-        const centerGrad = ctx.createRadialGradient(cx, cy - 8, 0, cx, cy, 36);
-        centerGrad.addColorStop(0, '#FFFFFF');
-        centerGrad.addColorStop(0.4, archetype.color);
-        centerGrad.addColorStop(1, archetype.color + '00');
-        ctx.fillStyle = centerGrad;
-        ctx.beginPath();
-        ctx.arc(cx, cy, 36, 0, Math.PI * 2);
-        ctx.fill();
+        drawFlavourPetals(ctx, archetype, cx, cy, 119, 137);
 
         // Intensity ring
         const intensityAngle = (state.intensity / 100) * Math.PI * 2;
@@ -662,16 +924,10 @@ const App = (() => {
         ctx.lineWidth = 4;
         ctx.lineCap = 'round';
         ctx.beginPath();
-        ctx.arc(cx, cy, 110, -Math.PI / 2, -Math.PI / 2 + intensityAngle);
+        ctx.arc(cx, cy, 124, -Math.PI / 2, -Math.PI / 2 + intensityAngle);
         ctx.stroke();
 
-        drawDecoDots(ctx, archetype, cx, cy, 105);
-
-        // Archetype emoji in center
-        ctx.font = '34px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(archetype.emoji, cx, cy);
+        drawDecoDots(ctx, archetype, cx, cy, 132);
     }
 
     function drawFlavourPetals(ctx, archetype, cx, cy, innerR, outerR) {
